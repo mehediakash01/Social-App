@@ -21,13 +21,13 @@ export default function RegisterPage() {
 
       <div className="max-w-7xl w-11/12 mx-auto min-h-screen flex items-center justify-between relative z-10 py-12 gap-12">
         {/* Left Side - Illustration */}
-        <div className="hidden lg:flex lg:w-1/2 items-center justify-center">
+        <div className="hidden lg:flex  items-center justify-center">
           <img
-            width={750}
-            height={750}
-            src="https://i.ibb.co/6JZ9Zyv/register.png"
+            width={850}
+            height={850}
+            src="/assets/images/registration1.png"
             alt="Registration illustration showing people with mobile app"
-            className="w-full max-w-lg mx-auto drop-shadow-2xl"
+            className="w-full max-w-lvh mx-auto drop-shadow-2xl"
             priority
           />
         </div>
