@@ -1,9 +1,15 @@
-import Image from "next/image";
+// import { useAuth } from "../auth/AuthContext";
+import LoginPage from "./login/page";
+
 
 export default function Home() {
+  // const { user } = useAuth();
+
+ 
   return (
-    <div >
-      
-    </div>
+    <>
+      {/* {user?.email ? <Feed /> : <Login />} */}
+      <LoginPage/>
+    </>
   );
 }

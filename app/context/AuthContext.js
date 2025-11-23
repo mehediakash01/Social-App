@@ -6,9 +6,11 @@ import {
   signOut,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signInWithPopup
+  signInWithPopup,
+  GoogleAuthProvider,
 } from "firebase/auth";
-import { auth, googleProvider } from "@/firebase.config";
+
+import { auth } from "../lib/firebase";
 
 export const AuthContext = createContext(null);
 
@@ -16,7 +18,9 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  
+  // Google provider instance
+  const googleProvider = new GoogleAuthProvider();
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser || null);
@@ -61,7 +65,7 @@ export default function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={authValue}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 }
