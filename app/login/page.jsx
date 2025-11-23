@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <section className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 relative overflow-hidden">
-      {/* Background Shapes - Replace with your actual images */}
+    <section className="min-h-screen bg-liner-to-br from-gray-50 to-gray-100 relative overflow-hidden">
+      
       <div className="absolute top-10 left-10 w-32 h-32 opacity-20 z-0">
         <div className="w-full h-full bg-blue-200 rounded-full"></div>
       </div>
@@ -55,7 +55,7 @@ export default function LoginPage() {
             {/* Header */}
             <div className="text-center mb-8">
               <p className="text-gray-500 text-sm mb-2">Welcome back</p>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
                 Login to your account
               </h1>
             </div>
