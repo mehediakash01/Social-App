@@ -1,5 +1,6 @@
-import SocialLogin from "../components/SocialLogin";
 import LoginForm from "../components/LoginForm";
+import SocialLogin from "../components/SocialLogin";
+
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -72,7 +73,7 @@ export default function LoginPage() {
             </div>
 
             {/* Login Form Component */}
-            <LoginForm />
+            <LoginForm/>
 
             {/* Sign Up Link */}
             <p className="text-center text-sm text-gray-600 mt-8">
