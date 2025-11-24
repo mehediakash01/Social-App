@@ -7,6 +7,8 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function RegisterForm() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -20,6 +22,16 @@ export default function RegisterForm() {
     e.preventDefault();
     
     // Validation
+    if (!firstName.trim()) {
+      toast.error("First name is required!");
+      return;
+    }
+
+    if (!lastName.trim()) {
+      toast.error("Last name is required!");
+      return;
+    }
+
     if (password !== repeatPassword) {
       toast.error("Passwords do not match!");
       return;
@@ -38,7 +50,28 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await signUpWithEmail(email, password);
+      // Step 1: Sign up with Firebase
+      const user = await signUpWithEmail(email, password);
+      
+      // Step 2: Save user info to MongoDB
+      const displayName = `${firstName.trim()} ${lastName.trim()}`;
+      
+      const saveResponse = await fetch("/api/auth/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.uid,
+          email: user.email,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          displayName
+        })
+      });
+
+      if (!saveResponse.ok) {
+        console.error("Failed to save user profile to database");
+      }
+
       toast.success("Account created successfully! Redirecting...");
       router.push("/feed");
     } catch (err) {
@@ -51,6 +84,39 @@ export default function RegisterForm() {
 
   return (
     <div className="space-y-5">
+      {/* First Name and Last Name Fields */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-gray-700 text-sm font-medium mb-2">
+            First Name
+          </label>
+          <input
+            type="text"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="John"
+            required
+            disabled={loading}
+          />
+        </div>
+
+        <div>
+          <label className="block text-gray-700 text-sm font-medium mb-2">
+            Last Name
+          </label>
+          <input
+            type="text"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Doe"
+            required
+            disabled={loading}
+          />
+        </div>
+      </div>
+
       {/* Email Field */}
       <div>
         <label className="block text-gray-700 text-sm font-medium mb-2">
