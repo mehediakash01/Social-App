@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -8,11 +9,11 @@ export default function RightSidebar() {
   const [friendSearch, setFriendSearch] = useState("");
 
   const friends = [
-    { name: "Steve Jobs", role: "UI/UX expert", lastSeen: "6 minute ago", online: true },
-    { name: "Ryan Roslansky", role: "Product Designer", lastSeen: "15 minute ago", online: true },
-    { name: "Dylan Field", role: "CEO at Figma", lastSeen: "1 hour ago", online: false },
-    { name: "Steve Jobs", role: "UI/UX expert", lastSeen: "2 hours ago", online: true },
-    { name: "Dylan Field", role: "Software Engineer", lastSeen: "Yesterday", online: false }
+    { name: "Steve Jobs", role: "UI/UX expert", lastSeen: "6 minute ago", online: true ,imgUrl:"/assets/images/people1.png" },
+    { name: "Ryan Roslansky", role: "Product Designer", lastSeen: "15 minute ago", online: true,imgUrl:"/assets/images/people2.png" },
+    { name: "Dylan Field", role: "CEO at Figma", lastSeen: "1 hour ago", online: false,imgUrl:"/assets/images/people3.png"  },
+    { name: "Steve Jobs", role: "UI/UX expert", lastSeen: "2 hours ago", online: true,imgUrl:"/assets/images/people2.png" },
+    { name: "Dylan Field", role: "Software Engineer", lastSeen: "Yesterday", online: false,imgUrl:"/assets/images/people1.png"  }
   ];
 
   const filteredFriends = friends.filter(friend =>
@@ -32,7 +33,9 @@ export default function RightSidebar() {
           </div>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-12 h-12 bg-linear-to-br from-purple-400 to-pink-500 rounded-full shrink-0"></div>
+              <div className=" rounded-full shrink-0">
+                <Image width={32} height={32} alt="person" src="/assets/images/Avatar.png"/>
+              </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-gray-800">Radovan Skidmore</p>
                 <p className="text-xs text-gray-500 mt-0.5">Founder, CEO at Invision</p>
@@ -79,7 +82,9 @@ export default function RightSidebar() {
                 <div key={i} className="flex items-center justify-between hover:bg-gray-50 p-2 rounded-lg transition-colors cursor-pointer">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="relative shrink-0">
-                      <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-indigo-500 rounded-full"></div>
+                      <div className="  rounded-full">
+                         <Image width={32} height={32}alt="person" src={friend.imgUrl}/>
+                      </div>
                       {friend.online && (
                         <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                       )}

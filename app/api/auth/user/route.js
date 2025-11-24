@@ -17,26 +17,27 @@ export async function POST(request) {
             );
         }
 
-        const profileData = {
+      
+        const setFields = {
             email,
             firstName: firstName || null,
             lastName: lastName || null,
             displayName: displayName || null, 
+            updatedAt: new Date()
+        };
+
+      
+        const setOnInsertFields = { 
+            userId: userId,
+            createdAt: new Date(),
         };
 
         // Use updateOne with upsert: true for efficient 'find or create/update'
         await usersCollection.updateOne(
             { userId }, 
             {
-                $set: {
-                    ...profileData,
-                    updatedAt: new Date()
-                },
-                $setOnInsert: { 
-                    userId: userId,
-                    createdAt: new Date(),
-                    displayName: displayName || null 
-                }
+                $set: setFields, 
+                $setOnInsert: setOnInsertFields
             },
             { upsert: true } 
         );
@@ -55,14 +56,14 @@ export async function POST(request) {
     } catch (error) {
         console.error("Save user error:", error);
         return NextResponse.json(
-            { error: "Failed to save user profile" },
+            { error: "Failed to save user profile", details: error.message },
             { status: 500 }
         );
     }
 }
 
 export async function GET(request) {
-    // GET: Fetch user profile by userId (Firebase UID)
+    
     try {
         const client = await clientPromise;
         const db = client.db("social-app");

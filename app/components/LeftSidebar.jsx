@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Lightbulb, UserPlus, Bookmark, Users, Gamepad2, Settings } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function LeftSidebar() {
@@ -58,13 +59,15 @@ export default function LeftSidebar() {
           </div>
           <div className="space-y-3">
             {[
-              { name: "Steve Jobs", role: "UI/UX expert" },
-              { name: "Ryan Roslansky", role: "Product Designer" },
-              { name: "Dylan Field", role: "Software Engineer" }
+              { name: "Steve Jobs", role: "UI/UX expert",imgUrl:"/assets/images/people1.png" },
+              { name: "Ryan Roslansky", role: "Product Designer",imgUrl:"/assets/images/people2.png"  },
+              { name: "Dylan Field", role: "Software Engineer",imgUrl:"/assets/images/people3.png"  }
             ].map((person, i) => (
               <div key={i} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-purple-500 rounded-full shrink-0"></div>
+                  <div className="w-10 h-10  rounded-full shrink-0">
+                      <Image width={24} height={24} alt="no more terrorism" src={person.imgUrl}/>
+                  </div>
                   <div className="min-w-0">
                     <p className="font-medium text-sm text-gray-800 truncate">{person.name}</p>
                     <p className="text-xs text-gray-500 truncate">{person.role}</p>
@@ -92,7 +95,9 @@ export default function LeftSidebar() {
               { date: "20 Mar", title: "Design Conference 2024", attendees: 45 }
             ].map((event, i) => (
               <div key={i} className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                <div className="w-full h-24 bg-linear-to-br from-purple-400 to-pink-400 rounded-lg mb-3"></div>
+                <div className="w-full  rounded-lg mb-3">
+                  <Image width={400} height={300} alt="no more terrorism" src="/assets/images/feed_event1.png"/>
+                </div>
                 <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded inline-block mb-2 font-medium">
                   {event.date}
                 </div>

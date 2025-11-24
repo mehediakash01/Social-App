@@ -8,6 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, logoutUser } = useContext(AuthContext);
+  console.log(user);
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
