@@ -88,7 +88,7 @@ export default function FeedPage() {
       <Navbar />
 
       <div className="pt-16">
-        <div className="max-w-[1400px] mx-auto px-4">
+        <div className="max-w-7xl w-11/12 mx-auto px-4">
           <div className="flex gap-6">
             {/* Left Sidebar */}
             <LeftSidebar />

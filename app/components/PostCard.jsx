@@ -516,7 +516,12 @@ export default function PostCard({ post }) {
         <div className="px-4 pb-4 border-t border-gray-100">
           {/* Add Comment */}
           <div className="flex items-center gap-3 mt-4">
-            <div className="w-8 h-8 bg-linear-to-br from-blue-400 to-purple-500 rounded-full shrink-0" />
+            <div className=" rounded-full shrink-0" >
+               <img
+                    src={user?.photoURL || "/assets/images/chat6_img.png"}
+                    className="w-10 h-10 rounded-full"
+                  />
+            </div>
             <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2">
               <input
                 type="text"
@@ -547,7 +552,12 @@ export default function PostCard({ post }) {
                 <div key={c._id}>
                   {/* Comment */}
                   <div className="flex items-start gap-2">
-                    <div className="w-8 h-8 bg-linear-to-br from-purple-400 to-pink-500 rounded-full shrink-0" />
+                    <div className="w-8 h-8 rounded-full shrink-0" >
+                       <img
+                    src={user?.photoURL || "/assets/images/chat6_img.png"}
+                    className="w-9 h-9 rounded-full"
+                  />
+                    </div>
                     <div className="flex-1">
                       <div className="bg-gray-100 p-3 rounded-xl">
                         <p className="font-semibold text-sm">{c.userName}</p>
