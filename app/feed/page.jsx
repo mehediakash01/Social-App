@@ -34,7 +34,7 @@ export default function FeedPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/posts/get?userId=${user.uid}&page=${pageNum}&limit=10`
+        `/api/auth/posts/get?userId=${user.uid}&page=${pageNum}&limit=10`
       );
 
       if (!response.ok) {

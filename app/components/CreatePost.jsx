@@ -59,7 +59,7 @@ export default function CreatePost({ onPostCreated }) {
         formData.append("image", selectedImage);
       }
 
-      const response = await fetch("/api/posts/create", {
+      const response = await fetch("/api/auth/posts/create", {
         method: "POST",
         body: formData,
       });

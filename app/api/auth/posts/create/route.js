@@ -1,6 +1,6 @@
 
 import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
+import clientPromise from "../../../../lib/mongodb"
 import { v2 as cloudinary } from "cloudinary";
 
 // Configure Cloudinary
