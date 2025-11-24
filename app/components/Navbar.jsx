@@ -7,7 +7,7 @@ import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
-  const { user, logout } = useContext(AuthContext);
+  const { user, logoutUser } = useContext(AuthContext);
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
@@ -78,7 +78,7 @@ export default function Navbar() {
                 </Link>
                 <hr className="my-2" />
                 <button
-                  onClick={logout}
+                  onClick={()=>logoutUser()}
                   className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                 >
                   Logout
