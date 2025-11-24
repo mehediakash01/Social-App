@@ -606,7 +606,12 @@ export default function PostCard({ post }) {
                       {/* Reply Input */}
                       {replyingTo === c._id && (
                         <div className="flex items-center gap-2 mt-2 ml-3">
-                          <div className="w-6 h-6 bg-linear-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
+                          <div className=" rounded-full shrink-0" >
+                             <img
+                    src={user?.photoURL || "/assets/images/chat6_img.png"}
+                    className="w-6 h-6 rounded-full"
+                  />
+                          </div>
                           <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-3 py-1.5">
                             <input
                               type="text"
