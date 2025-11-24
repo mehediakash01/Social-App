@@ -22,16 +22,18 @@ export async function GET(request) {
     const db = client.db("social-app");
     const commentsCollection = db.collection("comments");
 
-    // Fetch comments for this post
+    
     const comments = await commentsCollection
-      .find({ postId: postId }) // Store as string for simplicity
-      .sort({ createdAt: -1 }) // newest first
+      .find({ 
+        postId: postId,
+        parentCommentId: null  
+      })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .toArray();
 
-    console.log(`✅ Found ${comments.length} comments`);
+    console.log(`✅ Found ${comments.length} top-level comments`);
 
-    // Convert ObjectId to string
     const commentsWithStringIds = comments.map(comment => ({
       ...comment,
       _id: comment._id.toString()
@@ -68,15 +70,14 @@ export async function POST(request) {
     const commentsCollection = db.collection("comments");
     const postsCollection = db.collection("posts");
 
-    // Create comment
     const comment = {
-      postId: postId, // Store as string
+      postId: postId,
       userId,
       userName,
       content,
       likesCount: 0,
       repliesCount: 0,
-      parentCommentId: null,
+      parentCommentId: null,  
       createdAt: new Date(),
     };
 
