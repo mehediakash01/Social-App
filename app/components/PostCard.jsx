@@ -4,6 +4,7 @@ import { useContext, useState, useEffect } from "react";
 import { MessageSquare, Share2, ThumbsUp, MoreVertical, Lock, Globe, Send } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function PostCard({ post }) {
   const { user } = useContext(AuthContext);
@@ -356,7 +357,8 @@ export default function PostCard({ post }) {
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full shrink-0" />
+            <div className=" rounded-full shrink-0" />
+            <Image width={32} height={32} alt="user" src="/assets/images/chat6_img.png" />
             <div>
               <h4 className="font-semibold text-sm text-gray-800">
                 {post.userName || "Anonymous"}
@@ -467,7 +469,7 @@ export default function PostCard({ post }) {
               {likesList.length > 0 ? (
                 likesList.map((like) => (
                   <div key={like._id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-purple-500 rounded-full" />
                     <div>
                       <p className="font-medium text-sm">{like.userName || like.userId}</p>
                       <p className="text-xs text-gray-500">{getTimeAgo(like.createdAt)}</p>
@@ -494,7 +496,7 @@ export default function PostCard({ post }) {
               {commentLikesList.length > 0 ? (
                 commentLikesList.map((like) => (
                   <div key={like._id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full" />
+                    <div className="w-10 h-10 bg-linear-to-br from-green-400 to-blue-500 rounded-full" />
                     <div>
                       <p className="font-medium text-sm">{like.userName || like.userId}</p>
                       <p className="text-xs text-gray-500">{getTimeAgo(like.createdAt)}</p>
@@ -514,7 +516,7 @@ export default function PostCard({ post }) {
         <div className="px-4 pb-4 border-t border-gray-100">
           {/* Add Comment */}
           <div className="flex items-center gap-3 mt-4">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full shrink-0" />
+            <div className="w-8 h-8 bg-linear-to-br from-blue-400 to-purple-500 rounded-full shrink-0" />
             <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2">
               <input
                 type="text"
@@ -545,7 +547,7 @@ export default function PostCard({ post }) {
                 <div key={c._id}>
                   {/* Comment */}
                   <div className="flex items-start gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full shrink-0" />
+                    <div className="w-8 h-8 bg-linear-to-br from-purple-400 to-pink-500 rounded-full shrink-0" />
                     <div className="flex-1">
                       <div className="bg-gray-100 p-3 rounded-xl">
                         <p className="font-semibold text-sm">{c.userName}</p>
@@ -594,7 +596,7 @@ export default function PostCard({ post }) {
                       {/* Reply Input */}
                       {replyingTo === c._id && (
                         <div className="flex items-center gap-2 mt-2 ml-3">
-                          <div className="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
+                          <div className="w-6 h-6 bg-linear-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
                           <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-3 py-1.5">
                             <input
                               type="text"
@@ -620,7 +622,7 @@ export default function PostCard({ post }) {
                         <div className="mt-3 ml-6 space-y-3 border-l-2 border-gray-200 pl-3">
                           {replies[c._id].map((reply) => (
                             <div key={reply._id} className="flex items-start gap-2">
-                              <div className="w-7 h-7 bg-gradient-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
+                              <div className="w-7 h-7 bg-linear-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
                               <div className="flex-1">
                                 <div className="bg-gray-50 p-2.5 rounded-xl">
                                   <p className="font-semibold text-xs">{reply.userName}</p>

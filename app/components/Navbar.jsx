@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthContext } from "../context/AuthContext";
+import Image from "next/image";
 
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -28,19 +29,11 @@ export default function Navbar() {
       <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/feed" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <svg
-              className="w-5 h-5 text-white"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"></path>
-            </svg>
+         
+          
+          <div>
+            <Image src="/assets/images/logo.svg" width={158} height={33} alt="logo"/>
           </div>
-          <span className="text-xl font-bold hidden sm:inline">
-            <span className="text-blue-500">Buddy</span>
-            <span className="text-gray-700">Script</span>
-          </span>
         </Link>
 
         {/* Desktop Search Bar */}

@@ -79,7 +79,7 @@ export default function FeedPage() {
   };
 
   if (!user) {
-    return null; // Or loading spinner
+    return null; 
   }
 
   return (

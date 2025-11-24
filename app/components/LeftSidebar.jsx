@@ -65,7 +65,7 @@ export default function LeftSidebar() {
             ].map((person, i) => (
               <div key={i} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10  rounded-full shrink-0">
+                  <div className="  rounded-full shrink-0">
                       <Image width={24} height={24} alt="no more terrorism" src={person.imgUrl}/>
                   </div>
                   <div className="min-w-0">
