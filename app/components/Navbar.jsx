@@ -1,14 +1,27 @@
 "use client";
 
 import { useState, useContext } from "react";
-import { Home, Bell, MessageSquare, User, Search } from "lucide-react";
+import {
+  Home,
+  Bell,
+  MessageSquare,
+  User,
+  Search,
+  LogOut,
+  Settings,
+  HelpCircle,
+} from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AuthContext } from "../context/AuthContext";
 
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const { user, logoutUser } = useContext(AuthContext);
-  console.log(user);
+  const pathname = usePathname();
+
+  const isActive = (path) =>
+    pathname === path ? "text-blue-500" : "text-gray-600";
 
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
@@ -16,17 +29,21 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/feed" className="flex items-center gap-2">
           <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <svg
+              className="w-5 h-5 text-white"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
               <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"></path>
             </svg>
           </div>
-          <span className="text-xl font-bold">
+          <span className="text-xl font-bold hidden sm:inline">
             <span className="text-blue-500">Buddy</span>
             <span className="text-gray-700">Script</span>
           </span>
         </Link>
 
-        {/* Search Bar */}
+        {/* Desktop Search Bar */}
         <div className="hidden md:flex flex-1 max-w-md mx-8">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -38,51 +55,106 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* MOBILE SEARCH BUTTON */}
+        <button className="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+          <Search className="w-6 h-6 text-gray-600" />
+        </button>
+
         {/* Right Icons */}
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <Link href="/feed" className="p-2 hover:bg-gray-100 rounded-lg">
-            <Home className="w-6 h-6 text-gray-600" />
+            <Home className={`w-6 h-6 ${isActive("/feed")}`} />
           </Link>
+
           <button className="p-2 hover:bg-gray-100 rounded-lg relative">
             <Bell className="w-6 h-6 text-gray-600" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
+
           <button className="p-2 hover:bg-gray-100 rounded-lg relative">
             <MessageSquare className="w-6 h-6 text-gray-600" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-          <Link href="/profile" className="p-2 hover:bg-gray-100 rounded-lg">
-            <User className="w-6 h-6 text-gray-600" />
-          </Link>
-          
-          {/* User Dropdown */}
+
+          {/* Dropdown */}
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-2 ml-2 hover:bg-gray-100 px-3 py-2 rounded-lg"
             >
-              <span className="text-sm font-medium text-gray-700">
-                {user?.displayName || user?.email || "User"}
-              </span>
-              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              <div className="flex items-center gap-2">
+                <img
+                  src={user?.photoURL || "/assets/images/chat6_img.png"}
+                  alt="avatar"
+                  className="w-9 h-9 rounded-full object-cover"
+                />
+                <p>{user?.displayName}</p>
+              </div>
+              <svg
+                className="w-4 h-4 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
             {showDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                  Profile
-                </Link>
-                <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <div className="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-200 py-3">
+                {/* Header */}
+                <div className="flex items-center gap-3 px-4 pb-3">
+                  <img
+                    src={user?.photoURL || "/assets/images/chat6_img.png"}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold">
+                      {user?.displayName || "User"}
+                    </p>
+                    <Link
+                      href="/profile"
+                      className="text-blue-500 text-sm hover:underline"
+                    >
+                      View Profile
+                    </Link>
+                  </div>
+                </div>
+
+                <hr />
+
+                {/* Settings */}
+                <Link
+                  href="/settings"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100"
+                >
+                  <Settings className="w-5 h-5 text-blue-500" />
                   Settings
                 </Link>
-                <hr className="my-2" />
-                <button
-                  onClick={()=>logoutUser()}
-                  className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+
+                {/* Help */}
+                <Link
+                  href="/help"
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100"
                 >
-                  Logout
+                  <HelpCircle className="w-5 h-5 text-blue-500" />
+                  Help & Support
+                </Link>
+
+                <hr />
+
+                {/* Logout */}
+                <button
+                  onClick={logoutUser}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-gray-100"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Log Out
                 </button>
               </div>
             )}
