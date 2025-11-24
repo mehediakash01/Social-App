@@ -88,7 +88,12 @@ export default function CreatePost({ onPostCreated }) {
   return (
     <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
       <div className="flex items-start gap-3 mb-4">
-        <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-purple-500 rounded-full shrink-0"></div>
+        <div className=" rounded-full shrink-0">
+           <img
+                    src={user?.photoURL || "/assets/images/chat6_img.png"}
+                    className="w-9 h-9 rounded-full"
+                  />
+        </div>
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
