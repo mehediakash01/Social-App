@@ -50,10 +50,10 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      // Step 1: Sign up with Firebase
+      
       const user = await signUpWithEmail(email, password);
       
-      // Step 2: Save user info to MongoDB
+      
       const displayName = `${firstName.trim()} ${lastName.trim()}`;
       
       const saveResponse = await fetch("/api/auth/user", {
