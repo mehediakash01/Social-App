@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import clientPromise from "../../../../lib/mongodb";
 
 export async function POST(req) {
@@ -17,31 +18,24 @@ export async function POST(req) {
     // Check if already liked
     const existingLike = await likes.findOne({ postId, userId });
 
+    let liked;
     if (existingLike) {
       // UNLIKE
       await likes.deleteOne({ _id: existingLike._id });
-
-      await posts.updateOne(
-        { _id: postId },
-        { $inc: { likeCount: -1 } }
-      );
-
-      return new Response(JSON.stringify({ liked: false }), { status: 200 });
+      await posts.updateOne({ _id: new ObjectId(postId) }, { $inc: { likesCount: -1 } });
+      liked = false;
+    } else {
+      // LIKE
+      await likes.insertOne({ postId, userId, createdAt: Date.now() });
+      await posts.updateOne({ _id: new ObjectId(postId) }, { $inc: { likesCount: 1 } });
+      liked = true;
     }
 
-    // LIKE
-    await likes.insertOne({
-      postId,
-      userId,
-      createdAt: Date.now()
-    });
+    // Get updated likesCount
+    const post = await posts.findOne({ _id: new ObjectId(postId) });
+    const likesCount = post?.likesCount ?? 0;
 
-    await posts.updateOne(
-      { _id: postId },
-      { $inc: { likeCount: 1 } }
-    );
-
-    return new Response(JSON.stringify({ liked: true }), { status: 200 });
+    return new Response(JSON.stringify({ liked, likesCount }), { status: 200 });
 
   } catch (err) {
     console.log(err);

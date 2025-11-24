@@ -2,7 +2,7 @@
 
 import axios from "axios";
 import { useEffect } from "react";
-import { auth } from "@/firebase.config";
+import { auth } from "../lib/firebase";
 
 const axiosSecure = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,

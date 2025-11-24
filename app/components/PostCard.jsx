@@ -1,23 +1,50 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { MessageSquare, Share2, ThumbsUp, MoreVertical, Lock, Globe } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 export default function PostCard({ post }) {
   const [showComments, setShowComments] = useState(false);
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(post.likesCount || 0);
 
+  const { user } = useContext(AuthContext);
+
+  // Check if current user already liked
+  useEffect(() => {
+    if (post.likes && user) {
+      setLiked(post.likes.includes(user.uid));
+    }
+  }, [post.likes, user]);
+
   const handleLike = async () => {
-    // TODO: Implement like functionality
-    setLiked(!liked);
-    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+    if (!user) return;
+
+    try {
+      const res = await fetch("/api/auth/posts/like", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ postId: post._id, userId: user.uid }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setLiked(data.liked);
+        setLikesCount(data.likesCount); // use backend updated value
+      } else {
+        console.log("Like failed:", data);
+      }
+    } catch (err) {
+      console.log("Like Error:", err);
+    }
   };
 
   const getTimeAgo = (date) => {
     if (!date) return "Just now";
     const seconds = Math.floor((new Date() - new Date(date)) / 1000);
-    
+
     if (seconds < 60) return `${seconds} seconds ago`;
     if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
@@ -104,12 +131,13 @@ export default function PostCard({ post }) {
         <div className="flex items-center justify-around">
           <button
             onClick={handleLike}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1 justify-center ${
-              liked ? "text-blue-600" : "text-gray-600"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors flex-1 
+              justify-center ${liked ? "text-blue-600" : "text-gray-600"}`}
           >
             <ThumbsUp className={`w-5 h-5 ${liked ? "fill-blue-600" : ""}`} />
-            <span className="text-sm font-medium">Like</span>
+            <span className="text-sm font-medium">
+              {likesCount} {likesCount === 1 ? "Like" : "Likes"}
+            </span>
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
@@ -137,7 +165,6 @@ export default function PostCard({ post }) {
             />
           </div>
 
-          {/* TODO: Display comments here */}
           {post.commentsCount > 0 && (
             <button className="text-sm text-gray-500 mt-3 hover:text-blue-600 transition-colors">
               View all {post.commentsCount} comments
