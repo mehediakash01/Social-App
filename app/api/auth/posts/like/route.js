@@ -1,44 +1,126 @@
+// app/api/posts/like/route.js
+import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
-import clientPromise from "../../../../lib/mongodb";
 
-export async function POST(req) {
+export async function POST(request) {
   try {
-    const { postId, userId } = await req.json();
+    const { postId, userId } = await request.json();
+
+    console.log("👍 Like/Unlike request:", { postId, userId });
 
     if (!postId || !userId) {
-      return new Response(JSON.stringify({ message: "Missing fields" }), { status: 400 });
+      return NextResponse.json(
+        { error: "Missing postId or userId" },
+        { status: 400 }
+      );
     }
 
     const client = await clientPromise;
     const db = client.db("social-app");
-
-    const likes = db.collection("likes");
-    const posts = db.collection("posts");
+    const likesCollection = db.collection("likes");
+    const postsCollection = db.collection("posts");
 
     // Check if already liked
-    const existingLike = await likes.findOne({ postId, userId });
+    const existingLike = await likesCollection.findOne({
+      postId: postId, 
+      userId: userId,
+      targetType: "post"
+    });
 
     let liked;
+    let likesCount;
+
     if (existingLike) {
       // UNLIKE
-      await likes.deleteOne({ _id: existingLike._id });
-      await posts.updateOne({ _id: new ObjectId(postId) }, { $inc: { likesCount: -1 } });
+      console.log("💔 Unliking post...");
+      await likesCollection.deleteOne({ _id: existingLike._id });
+      
+      const updateResult = await postsCollection.findOneAndUpdate(
+        { _id: new ObjectId(postId) },
+        { $inc: { likesCount: -1 } },
+        { returnDocument: 'after' }
+      );
+      
+      likesCount = updateResult.likesCount || 0;
       liked = false;
+      console.log("✅ Post unliked, new count:", likesCount);
     } else {
       // LIKE
-      await likes.insertOne({ postId, userId, createdAt: Date.now() });
-      await posts.updateOne({ _id: new ObjectId(postId) }, { $inc: { likesCount: 1 } });
+      console.log("❤️ Liking post...");
+      await likesCollection.insertOne({
+        postId: postId, 
+        userId: userId,
+        userName: userId, 
+        targetType: "post",
+        createdAt: new Date(),
+      });
+
+      const updateResult = await postsCollection.findOneAndUpdate(
+        { _id: new ObjectId(postId) },
+        { $inc: { likesCount: 1 } },
+        { returnDocument: 'after' }
+      );
+
+      likesCount = updateResult.likesCount || 1;
       liked = true;
+      console.log("✅ Post liked, new count:", likesCount);
     }
 
-    // Get updated likesCount
-    const post = await posts.findOne({ _id: new ObjectId(postId) });
-    const likesCount = post?.likesCount ?? 0;
+    return NextResponse.json({
+      liked,
+      likesCount,
+      message: liked ? "Post liked" : "Post unliked"
+    });
+  } catch (error) {
+    console.error("❌ Error liking/unliking post:", error);
+    return NextResponse.json(
+      { error: "Failed to like/unlike post: " + error.message },
+      { status: 500 }
+    );
+  }
+}
 
-    return new Response(JSON.stringify({ liked, likesCount }), { status: 200 });
+// Get list of users who liked
+export async function GET(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const postId = searchParams.get("postId");
 
-  } catch (err) {
-    console.log(err);
-    return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
+    console.log("👥 Getting likes for postId:", postId);
+
+    if (!postId) {
+      return NextResponse.json(
+        { error: "Missing postId" },
+        { status: 400 }
+      );
+    }
+
+    const client = await clientPromise;
+    const db = client.db("social-app");
+    const likesCollection = db.collection("likes");
+
+    const likes = await likesCollection
+      .find({ postId: postId, targetType: "post" })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    console.log(`✅ Found ${likes.length} likes`);
+
+    const likesWithStringIds = likes.map(like => ({
+      ...like,
+      _id: like._id.toString()
+    }));
+
+    return NextResponse.json({
+      likes: likesWithStringIds,
+      count: likes.length
+    });
+  } catch (error) {
+    console.error("❌ Error fetching likes:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch likes: " + error.message },
+      { status: 500 }
+    );
   }
 }

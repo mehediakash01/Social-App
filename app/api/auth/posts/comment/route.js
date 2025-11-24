@@ -2,40 +2,27 @@
 import clientPromise from "../../../../lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export async function POST(req) {
+export async function GET(req) {
   try {
-    const { postId, userId, userName, content } = await req.json();
+    const { searchParams } = new URL(req.url);
+    const postId = searchParams.get("postId");
+    const limit = parseInt(searchParams.get("limit")) || 5; // fetch latest 5 by default
 
-    if (!postId || !userId || !content) {
-      return new Response(JSON.stringify({ message: "Missing fields" }), { status: 400 });
+    if (!postId) {
+      return new Response(JSON.stringify({ message: "Missing postId" }), { status: 400 });
     }
 
     const client = await clientPromise;
     const db = client.db("social-app");
-    const posts = db.collection("posts");
-    const comments = db.collection("comments");
+    const commentsCollection = db.collection("comments");
 
-    const newComment = {
-      postId: new ObjectId(postId),
-      userId,
-      userName,
-      content,
-      createdAt: new Date(),
-    };
+    const comments = await commentsCollection
+      .find({ postId: new ObjectId(postId) })
+      .sort({ createdAt: -1 }) // newest first
+      .limit(limit)
+      .toArray();
 
-    const result = await comments.insertOne(newComment);
-
-    // increment commentCount in post
-    await posts.updateOne(
-      { _id: new ObjectId(postId) },
-      { $inc: { commentsCount: 1 } }
-    );
-
-    return new Response(
-      JSON.stringify({ comment: newComment }),
-      { status: 200 }
-    );
-
+    return new Response(JSON.stringify({ comments }), { status: 200 });
   } catch (err) {
     console.error(err);
     return new Response(JSON.stringify({ message: "Server error" }), { status: 500 });
