@@ -1,15 +1,9 @@
 "use client";
 
 import { useContext, useState, useEffect } from "react";
-import {
-  MessageSquare,
-  Share2,
-  ThumbsUp,
-  MoreVertical,
-  Lock,
-  Globe,
-} from "lucide-react";
+import { MessageSquare, Share2, ThumbsUp, MoreVertical, Lock, Globe, Send } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function PostCard({ post }) {
   const { user } = useContext(AuthContext);
@@ -21,53 +15,88 @@ export default function PostCard({ post }) {
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState([]);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [showLikes, setShowLikes] = useState(false);
+  const [likesList, setLikesList] = useState([]);
 
-  // Check if user already liked
+  // Fetch comments when opening comment section
   useEffect(() => {
-    if (post.likes && user) setLiked(post.likes.includes(user.uid));
-  }, [post.likes, user]);
-
-  // Fetch latest comments when opening comment section
-  useEffect(() => {
-    if (showComments && comments.length === 0) fetchComments();
+    if (showComments) {
+      fetchComments();
+    }
   }, [showComments]);
 
   const fetchComments = async () => {
     if (!post._id) return;
     setLoadingComments(true);
     try {
-      const res = await fetch(
-        `/api/auth/posts/comment?postId=${post._id}&limit=5`
-      );
+      const res = await fetch(`/api/auth/posts/comment?postId=${post._id}&limit=10`);
       const data = await res.json();
-      if (res.ok) setComments(data.comments || []);
+      if (res.ok) {
+        setComments(data.comments || []);
+      } else {
+        console.error("Failed to fetch comments:", data.error);
+      }
     } catch (err) {
-      console.log("Fetch comments error:", err);
+      console.error("Fetch comments error:", err);
+      toast.error("Failed to load comments");
     } finally {
       setLoadingComments(false);
     }
   };
 
   const handleLike = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error("Please login to like posts");
+      return;
+    }
+
+    // Optimistic update
+    const prevLiked = liked;
+    const prevCount = likesCount;
+    setLiked(!liked);
+    setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+
     try {
       const res = await fetch("/api/auth/posts/like", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ postId: post._id, userId: user.uid }),
       });
+
       const data = await res.json();
+      
       if (res.ok) {
         setLiked(data.liked);
         setLikesCount(data.likesCount);
+      } else {
+        // Revert on error
+        setLiked(prevLiked);
+        setLikesCount(prevCount);
+        toast.error(data.error || "Failed to like post");
       }
     } catch (err) {
-      console.log("Like Error:", err);
+      console.error("Like error:", err);
+      // Revert on error
+      setLiked(prevLiked);
+      setLikesCount(prevCount);
+      toast.error("Failed to like post");
     }
   };
 
   const handleAddComment = async () => {
-    if (!user || !commentText.trim()) return;
+    if (!user) {
+      toast.error("Please login to comment");
+      return;
+    }
+
+    if (!commentText.trim()) {
+      toast.error("Comment cannot be empty");
+      return;
+    }
+
+    const commentToSend = commentText;
+    setCommentText(""); 
+
     try {
       const res = await fetch("/api/auth/posts/comment", {
         method: "POST",
@@ -76,17 +105,39 @@ export default function PostCard({ post }) {
           postId: post._id,
           userId: user.uid,
           userName: user.displayName || user.email,
-          content: commentText,
+          content: commentToSend,
         }),
       });
+
       const data = await res.json();
+      
       if (res.ok) {
         setComments((prev) => [data.comment, ...prev]);
-        setCommentText("");
-        post.commentsCount += 1;
+        post.commentsCount = (post.commentsCount || 0) + 1;
+        toast.success("Comment added!");
+      } else {
+        setCommentText(commentToSend); // Restore text on error
+        toast.error(data.error || "Failed to add comment");
       }
     } catch (err) {
-      console.log("Comment Error:", err);
+      console.error("Comment error:", err);
+      setCommentText(commentToSend); // Restore text on error
+      toast.error("Failed to add comment");
+    }
+  };
+
+  const fetchLikesList = async () => {
+    if (!post._id) return;
+    try {
+      const res = await fetch(`/api/auth/posts/like?postId=${post._id}`);
+      const data = await res.json();
+      if (res.ok) {
+        setLikesList(data.likes || []);
+        setShowLikes(true);
+      }
+    } catch (err) {
+      console.error("Fetch likes error:", err);
+      toast.error("Failed to load likes");
     }
   };
 
@@ -161,9 +212,12 @@ export default function PostCard({ post }) {
                 <ThumbsUp className="w-3 h-3 text-white" fill="white" />
               </div>
             </div>
-            <span className="hover:text-blue-600 cursor-pointer">
+            <button 
+              onClick={fetchLikesList}
+              className="hover:text-blue-600 cursor-pointer hover:underline"
+            >
               {likesCount} {likesCount === 1 ? "Like" : "Likes"}
-            </span>
+            </button>
           </div>
           <div className="flex items-center gap-4">
             <span className="hover:text-blue-600 cursor-pointer">
@@ -186,9 +240,7 @@ export default function PostCard({ post }) {
             }`}
           >
             <ThumbsUp className={`w-5 h-5 ${liked ? "fill-blue-600" : ""}`} />
-            <span className="text-sm font-medium">
-              {likesCount} {likesCount === 1 ? "Like" : "Likes"}
-            </span>
+            <span className="text-sm font-medium">Like</span>
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
@@ -204,56 +256,86 @@ export default function PostCard({ post }) {
         </div>
       </div>
 
+      {/* Show Likes Modal */}
+      {showLikes && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowLikes(false)}>
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-lg">People who liked this</h3>
+              <button onClick={() => setShowLikes(false)} className="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {likesList.length > 0 ? (
+                likesList.map((like) => (
+                  <div key={like._id} className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-purple-500 rounded-full" />
+                    <div>
+                      <p className="font-medium text-sm">{like.userName || like.userId}</p>
+                      <p className="text-xs text-gray-500">{getTimeAgo(like.createdAt)}</p>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-8">No likes yet</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Comment Section */}
       {showComments && (
-        <div className="px-4 pb-4 border-t border-gray-100 mt-2">
+        <div className="px-4 pb-4 border-t border-gray-100">
           {/* Add Comment */}
           <div className="flex items-center gap-3 mt-4">
             <div className="w-8 h-8 bg-linear-to-br from-blue-400 to-purple-500 rounded-full shrink-0" />
-            <input
-              type="text"
-              placeholder="Write a comment..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="flex-1 px-4 py-2 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-              onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
-            />
+            <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2">
+              <input
+                type="text"
+                placeholder="Write a comment..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="flex-1 bg-transparent focus:outline-none text-sm"
+                onKeyDown={(e) => e.key === "Enter" && handleAddComment()}
+              />
+              <button
+                onClick={handleAddComment}
+                className="text-blue-500 hover:text-blue-600 disabled:opacity-50"
+                disabled={!commentText.trim()}
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Comments List */}
-          {loadingComments && (
-            <p className="text-sm text-gray-400 mt-2">Loading comments...</p>
-          )}
-
-          {comments.length > 0 && (
-            <div className="mt-3 space-y-2">
+          {loadingComments ? (
+            <div className="flex justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            </div>
+          ) : comments.length > 0 ? (
+            <div className="mt-4 space-y-3">
               {comments.map((c) => (
-                <div
-                  key={c._id}
-                  className="flex items-start gap-2"
-                >
-                  <div className="w-6 h-6 bg-gray-300 rounded-full shrink-0" />
-                  <div className="bg-gray-100 p-2 rounded-xl flex-1">
-                    <p className="font-semibold text-sm">{c.userName}</p>
-                    <p className="text-sm text-gray-700">{c.content}</p>
-                    <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                      <button className="hover:text-blue-600">Like</button>
-                      <button className="hover:text-blue-600">Reply</button>
+                <div key={c._id} className="flex items-start gap-2">
+                  <div className="w-8 h-8 bg-linear-to-br from-purple-400 to-pink-500 rounded-full shrink-0" />
+                  <div className="flex-1">
+                    <div className="bg-gray-100 p-3 rounded-xl">
+                      <p className="font-semibold text-sm">{c.userName}</p>
+                      <p className="text-sm text-gray-700 mt-1">{c.content}</p>
+                    </div>
+                    <div className="flex gap-4 text-xs text-gray-500 mt-1 ml-3">
+                      <span>{getTimeAgo(c.createdAt)}</span>
+                      <button className="hover:text-blue-600 font-medium">Like</button>
+                      <button className="hover:text-blue-600 font-medium">Reply</button>
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          )}
-
-          {/* View previous comments */}
-          {post.commentsCount > comments.length && (
-            <button
-              onClick={fetchComments}
-              className="text-sm text-gray-500 mt-2 hover:text-blue-600"
-            >
-              View all {post.commentsCount} comments
-            </button>
+          ) : (
+            <p className="text-center text-gray-500 text-sm py-8">
+              No comments yet. Be the first to comment!
+            </p>
           )}
         </div>
       )}
