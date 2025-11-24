@@ -61,12 +61,12 @@ export default function Navbar() {
 
           <button className="p-2 hover:bg-gray-100 rounded-lg relative">
             <Bell className="w-6 h-6 text-gray-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute -top-1 right-1 w-2 h-2 text-blue-500 rounded-full">6</span>
           </button>
 
           <button className="p-2 hover:bg-gray-100 rounded-lg relative">
             <MessageSquare className="w-6 h-6 text-gray-600" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            <span className="absolute -top-1 -right-1 w-2 h-2 text-blue-500 rounded-full">2</span>
           </button>
 
           {/* Dropdown */}
