@@ -265,16 +265,6 @@ For job submissions, mention:
 
 ---
 
-# 🎨 **Screenshots (Add Once You Upload Images)**
-
-
-
-```
-## 📸 Screenshots
-![Home Feed](./public/assets/screenshots/feed.png)
-![Post Card](./public/assets/screenshots/postcard.png)
-![Register Page](./public/assets/screenshots/register.png)
-```
 
 ---
 
