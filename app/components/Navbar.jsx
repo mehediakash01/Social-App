@@ -25,7 +25,7 @@ export default function Navbar() {
     pathname === path ? "text-blue-500" : "text-gray-600";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50">
+    <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 pr-6">
       <div className="max-w-[1400px] mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link href="/feed" className="flex items-center gap-2">
