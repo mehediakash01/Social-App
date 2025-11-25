@@ -16,21 +16,44 @@ export default function LoginForm() {
   const { loginWithEmail } = useContext(AuthContext);
   const router = useRouter();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      await loginWithEmail(email, password);
-      toast.success("Login successful! Redirecting...");
-      router.push("/feed");
-    } catch (err) {
-      toast.error(err.message || "Failed to login. Please check your credentials.");
-      console.error("Login error:", err);
-    } finally {
-      setLoading(false);
+  try {
+    await loginWithEmail(email, password);
+    toast.success("Login successful! Redirecting...");
+    router.push("/feed");
+  } catch (err) {
+    // Robust error handling
+    let message = "Failed to login. Please check your credentials.";
+
+    // If Firebase error (or your backend error) has a code
+    if (err.code) {
+      switch (err.code) {
+        case "auth/user-not-found":
+          message = "No user found with this email.";
+          break;
+        case "auth/wrong-password":
+          message = "Incorrect password. Try again.";
+          break;
+        case "auth/invalid-email":
+          message = "Invalid email format.";
+          break;
+        default:
+          message = err.message || message;
+      }
+    } else if (err.message) {
+      message = err.message;
     }
-  };
+
+    toast.error(message);
+    console.error("Login error:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="space-y-5">
