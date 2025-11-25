@@ -21,7 +21,7 @@ export default function RightSidebar() {
   );
 
   return (
-    <aside className="hidden lg:block w-80 lg:pr-16 fixed right-4 top-20 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+    <aside className="hidden lg:block w-96 lg:pr-16 fixed right-4 top-20 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
       <div className="space-y-6 pl-2">
         {/* You Might Like */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function LeftSidebar() {
   return (
-    <aside className="hidden lg:block w-80 lg:pl-16 fixed left-4 top-20 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+    <aside className="hidden lg:block w-96 lg:pl-16 fixed left-4 top-20 h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
       <div className="space-y-6 pr-2">
         {/* Explore Section */}
         <div>
