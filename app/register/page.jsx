@@ -1,54 +1,57 @@
+"use client";
+
 import SocialLogin from "../components/SocialLogin";
 import RegisterForm from "../components/RegisterForm";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function RegisterPage() {
   return (
     <section className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 relative overflow-hidden">
-   
-      <div className="absolute top-10 left-10 w-32 h-32 opacity-20 z-0">
-        <div className="w-full h-full bg-blue-200 rounded-full"></div>
-      </div>
-      <div className="absolute top-40 right-20 w-24 h-24 opacity-20 z-0">
-        <div className="w-full h-full bg-purple-200 rounded-lg rotate-45"></div>
-      </div>
-      <div className="absolute bottom-20 left-40 w-40 h-40 opacity-20 z-0">
-        <div className="w-full h-full bg-pink-200 rounded-full"></div>
-      </div>
-      <div className="absolute bottom-40 right-10 w-28 h-28 opacity-20 z-0">
-        <div className="w-full h-full bg-indigo-200 rounded-lg rotate-12"></div>
-      </div>
 
-      <div className="max-w-7xl w-11/12 mx-auto min-h-screen flex items-center justify-between relative z-10 py-12 gap-12">
-        {/* Left Side - Illustration */}
-        <div className="hidden lg:flex  items-center justify-center">
+      {/* Soft background shapes */}
+      <div className="absolute top-10 left-10 w-32 h-32 opacity-20 z-0 bg-blue-200 rounded-full"></div>
+      <div className="absolute top-40 right-20 w-24 h-24 opacity-20 z-0 bg-purple-200 rounded-lg rotate-45"></div>
+      <div className="absolute bottom-20 left-40 w-40 h-40 opacity-20 z-0 bg-pink-200 rounded-full"></div>
+      <div className="absolute bottom-40 right-10 w-28 h-28 opacity-20 z-0 bg-indigo-200 rounded-lg rotate-12"></div>
+
+      <div className="max-w-7xl w-11/12 mx-auto min-h-screen flex flex-col lg:flex-row items-center justify-between relative z-10 py-12 gap-12">
+
+        {/* Mobile Image */}
+        <div className="w-full flex lg:hidden justify-center mb-6">
           <img
+            src="/assets/images/registration1.png"
             width={850}
             height={850}
-            src="/assets/images/registration1.png"
-            alt="Registration illustration showing people with mobile app"
-            className="w-full max-w-lvh mx-auto drop-shadow-2xl"
-            priority
+            alt="Registration Illustration"
+            className="w-72 sm:w-80 md:w-[420px] drop-shadow-2xl"
           />
         </div>
 
-        {/* Right Side - Registration Form */}
-        <div className="w-full lg:w-1/2 max-w-md mx-auto lg:mx-0">
+        {/* Desktop Image */}
+        <div className="hidden lg:flex items-center justify-center flex-[1.2]">
+          <img
+            src="/assets/images/registration1.png"
+            width={850}
+            height={850}
+            alt="Registration Illustration"
+            className="w-[520px] xl:w-[600px] drop-shadow-2xl"
+          />
+        </div>
+
+        {/* Form Area */}
+        <div className="w-full lg:w-1/2 max-w-lg mx-auto lg:mx-0 flex-[1]">
           <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12">
+
             {/* Logo */}
             <div className="flex items-center justify-center mb-8">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-lg">
-                  <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"></path>
-                    <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"></path>
-                  </svg>
-                </div>
-                <span className="text-2xl font-bold">
-                  <span className="text-blue-500">Buddy</span>
-                  <span className="text-gray-700">Script</span>
-                </span>
-              </div>
+              <Image
+                src="/assets/images/logo.svg"
+                width={158}
+                height={33}
+                alt="BuddyScript logo"
+                className="w-32 md:w-40"
+              />
             </div>
 
             {/* Header */}
@@ -59,7 +62,7 @@ export default function RegisterPage() {
               </h1>
             </div>
 
-            {/* Social Login Component */}
+            {/* Social Login */}
             <div className="mb-6">
               <SocialLogin buttonText="Register with google" />
             </div>
@@ -71,16 +74,20 @@ export default function RegisterPage() {
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            {/* Registration Form Component */}
+            {/* Registration Form */}
             <RegisterForm />
 
             {/* Login Link */}
             <p className="text-center text-sm text-gray-600 mt-8">
               Already have an account?{" "}
-              <Link href="/login" className="text-blue-500 hover:text-blue-600 font-semibold transition-colors">
+              <Link
+                href="/login"
+                className="text-blue-500 hover:text-blue-600 font-semibold transition-colors"
+              >
                 Login now
               </Link>
             </p>
+
           </div>
         </div>
       </div>
