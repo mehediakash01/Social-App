@@ -19,17 +19,16 @@ export default function PostCard({ post }) {
   const [showLikes, setShowLikes] = useState(false);
   const [likesList, setLikesList] = useState([]);
 
-  // New states for comment interactions
-  const [commentLikes, setCommentLikes] = useState({}); // {commentId: {liked, count}}
-  const [showCommentLikes, setShowCommentLikes] = useState(null); // commentId
+  // Comment interactions
+  const [commentLikes, setCommentLikes] = useState({});
+  const [showCommentLikes, setShowCommentLikes] = useState(null);
   const [commentLikesList, setCommentLikesList] = useState([]);
-  const [replyingTo, setReplyingTo] = useState(null); // commentId
+  const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState("");
-  const [replies, setReplies] = useState({}); // {commentId: [replies]}
-  const [showReplies, setShowReplies] = useState({}); // {commentId: boolean}
+  const [replies, setReplies] = useState({});
+  const [showReplies, setShowReplies] = useState({});
   const [loadingReplies, setLoadingReplies] = useState({});
 
-  // Fetch comments when opening comment section
   useEffect(() => {
     if (showComments) {
       fetchComments();
@@ -40,6 +39,7 @@ export default function PostCard({ post }) {
     if (!post._id) return;
     setLoadingComments(true);
     try {
+      // Fetch only TOP-LEVEL comments
       const res = await fetch(`/api/auth/posts/comment?postId=${post._id}&limit=10`);
       const data = await res.json();
       if (res.ok) {
@@ -133,7 +133,6 @@ export default function PostCard({ post }) {
         setComments((prev) => [data.comment, ...prev]);
         post.commentsCount = (post.commentsCount || 0) + 1;
         
-        // Initialize likes state for new comment
         setCommentLikes(prev => ({
           ...prev,
           [data.comment._id]: { liked: false, count: 0 }
@@ -151,7 +150,6 @@ export default function PostCard({ post }) {
     }
   };
 
-  // Like/Unlike Comment
   const handleLikeComment = async (commentId) => {
     if (!user) {
       toast.error("Please login to like comments");
@@ -160,7 +158,6 @@ export default function PostCard({ post }) {
 
     const prevState = commentLikes[commentId];
     
-    // Optimistic update
     setCommentLikes(prev => ({
       ...prev,
       [commentId]: {
@@ -191,7 +188,6 @@ export default function PostCard({ post }) {
           }
         }));
       } else {
-        // Revert on error
         setCommentLikes(prev => ({
           ...prev,
           [commentId]: prevState
@@ -208,7 +204,6 @@ export default function PostCard({ post }) {
     }
   };
 
-  // Fetch who liked a comment
   const fetchCommentLikes = async (commentId) => {
     try {
       const res = await fetch(`/api/auth/posts/comment/like?commentId=${commentId}`);
@@ -223,8 +218,7 @@ export default function PostCard({ post }) {
     }
   };
 
-  // Add Reply
-  const handleAddReply = async (parentCommentId) => {
+  const handleAddReply = async (parentComment) => {
     if (!user) {
       toast.error("Please login to reply");
       return;
@@ -244,30 +238,28 @@ export default function PostCard({ post }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           postId: post._id,
-          parentCommentId,
+          parentCommentId: parentComment._id,
           userId: user.uid,
           userName: user.displayName || user.email,
           content: replyToSend,
+          replyingToName: parentComment.userName, // Add @mention context
         }),
       });
 
       const data = await res.json();
       
       if (res.ok) {
-        // Add reply to state
         setReplies(prev => ({
           ...prev,
-          [parentCommentId]: [data.reply, ...(prev[parentCommentId] || [])]
+          [parentComment._id]: [data.reply, ...(prev[parentComment._id] || [])]
         }));
 
-        // Update comment replies count
         setComments(prev => prev.map(c => 
-          c._id === parentCommentId 
+          c._id === parentComment._id 
             ? { ...c, repliesCount: (c.repliesCount || 0) + 1 }
             : c
         ));
 
-        // Initialize likes state for new reply
         setCommentLikes(prev => ({
           ...prev,
           [data.reply._id]: { liked: false, count: 0 }
@@ -286,11 +278,16 @@ export default function PostCard({ post }) {
     }
   };
 
-  // Fetch Replies
   const fetchReplies = async (parentCommentId) => {
+    if (replies[parentCommentId] && showReplies[parentCommentId]) {
+      // Already loaded and showing, just hide
+      setShowReplies(prev => ({ ...prev, [parentCommentId]: false }));
+      return;
+    }
+
     if (replies[parentCommentId]) {
-      // Already loaded, just toggle
-      setShowReplies(prev => ({ ...prev, [parentCommentId]: !prev[parentCommentId] }));
+      // Already loaded, just show
+      setShowReplies(prev => ({ ...prev, [parentCommentId]: true }));
       return;
     }
 
@@ -306,7 +303,6 @@ export default function PostCard({ post }) {
           [parentCommentId]: data.replies || []
         }));
 
-        // Initialize likes state for replies
         const likesState = {};
         data.replies.forEach(reply => {
           likesState[reply._id] = {
@@ -357,8 +353,7 @@ export default function PostCard({ post }) {
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className=" rounded-full shrink-0" />
-            <Image width={32} height={32} alt="user" src="/assets/images/chat6_img.png" />
+            <Image width={40} height={40} alt="user" src={user?.photoURL || "/assets/images/chat6_img.png"} className="rounded-full" />
             <div>
               <h4 className="font-semibold text-sm text-gray-800">
                 {post.userName || "Anonymous"}
@@ -469,7 +464,7 @@ export default function PostCard({ post }) {
               {likesList.length > 0 ? (
                 likesList.map((like) => (
                   <div key={like._id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-linear-to-br from-blue-400 to-purple-500 rounded-full" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full" />
                     <div>
                       <p className="font-medium text-sm">{like.userName || like.userId}</p>
                       <p className="text-xs text-gray-500">{getTimeAgo(like.createdAt)}</p>
@@ -496,7 +491,7 @@ export default function PostCard({ post }) {
               {commentLikesList.length > 0 ? (
                 commentLikesList.map((like) => (
                   <div key={like._id} className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-linear-to-br from-green-400 to-blue-500 rounded-full" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-blue-500 rounded-full" />
                     <div>
                       <p className="font-medium text-sm">{like.userName || like.userId}</p>
                       <p className="text-xs text-gray-500">{getTimeAgo(like.createdAt)}</p>
@@ -516,12 +511,13 @@ export default function PostCard({ post }) {
         <div className="px-4 pb-4 border-t border-gray-100">
           {/* Add Comment */}
           <div className="flex items-center gap-3 mt-4">
-            <div className=" rounded-full shrink-0" >
-               <img
-                    src={user?.photoURL || "/assets/images/chat6_img.png"}
-                    className="w-10 h-10 rounded-full"
-                  />
-            </div>
+            <Image
+              width={32}
+              height={32}
+              src={user?.photoURL || "/assets/images/chat6_img.png"}
+              alt="user"
+              className="rounded-full flex-shrink-0"
+            />
             <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2">
               <input
                 type="text"
@@ -552,12 +548,13 @@ export default function PostCard({ post }) {
                 <div key={c._id}>
                   {/* Comment */}
                   <div className="flex items-start gap-2">
-                    <div className="w-8 h-8 rounded-full shrink-0" >
-                       <img
-                    src={user?.photoURL || "/assets/images/chat6_img.png"}
-                    className="w-9 h-9 rounded-full"
-                  />
-                    </div>
+                    <Image
+                      width={32}
+                      height={32}
+                      src={user?.photoURL || "/assets/images/chat6_img.png"}
+                      alt="commenter"
+                      className="rounded-full flex-shrink-0"
+                    />
                     <div className="flex-1">
                       <div className="bg-gray-100 p-3 rounded-xl">
                         <p className="font-semibold text-sm">{c.userName}</p>
@@ -582,7 +579,7 @@ export default function PostCard({ post }) {
                           </button>
                         )}
                         <button 
-                          onClick={() => setReplyingTo(replyingTo === c._id ? null : c._id)}
+                          onClick={() => setReplyingTo(replyingTo === c._id ? null : c)}
                           className="hover:text-blue-600 font-medium"
                         >
                           Reply
@@ -604,25 +601,26 @@ export default function PostCard({ post }) {
                       </div>
 
                       {/* Reply Input */}
-                      {replyingTo === c._id && (
+                      {replyingTo?._id === c._id && (
                         <div className="flex items-center gap-2 mt-2 ml-3">
-                          <div className=" rounded-full shrink-0" >
-                             <img
-                    src={user?.photoURL || "/assets/images/chat6_img.png"}
-                    className="w-6 h-6 rounded-full"
-                  />
-                          </div>
+                          <Image
+                            width={24}
+                            height={24}
+                            src={user?.photoURL || "/assets/images/chat6_img.png"}
+                            alt="user"
+                            className="rounded-full flex-shrink-0"
+                          />
                           <div className="flex-1 flex items-center gap-2 bg-gray-50 rounded-full px-3 py-1.5">
                             <input
                               type="text"
-                              placeholder="Write a reply..."
+                              placeholder={`Reply to @${c.userName}...`}
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
                               className="flex-1 bg-transparent focus:outline-none text-xs"
-                              onKeyDown={(e) => e.key === "Enter" && handleAddReply(c._id)}
+                              onKeyDown={(e) => e.key === "Enter" && handleAddReply(c)}
                             />
                             <button
-                              onClick={() => handleAddReply(c._id)}
+                              onClick={() => handleAddReply(c)}
                               className="text-blue-500 hover:text-blue-600 disabled:opacity-50"
                               disabled={!replyText.trim()}
                             >
@@ -637,10 +635,23 @@ export default function PostCard({ post }) {
                         <div className="mt-3 ml-6 space-y-3 border-l-2 border-gray-200 pl-3">
                           {replies[c._id].map((reply) => (
                             <div key={reply._id} className="flex items-start gap-2">
-                              <div className="w-7 h-7 bg-linear-to-br from-green-400 to-blue-500 rounded-full shrink-0" />
+                              <Image
+                                width={28}
+                                height={28}
+                                src={user?.photoURL || "/assets/images/chat6_img.png"}
+                                alt="replier"
+                                className="rounded-full flex-shrink-0"
+                              />
                               <div className="flex-1">
                                 <div className="bg-gray-50 p-2.5 rounded-xl">
-                                  <p className="font-semibold text-xs">{reply.userName}</p>
+                                  <p className="font-semibold text-xs">
+                                    {reply.userName}
+                                    {reply.replyingToName && (
+                                      <span className="text-blue-600 ml-1">
+                                        @{reply.replyingToName}
+                                      </span>
+                                    )}
+                                  </p>
                                   <p className="text-xs text-gray-700 mt-1">{reply.content}</p>
                                 </div>
                                 <div className="flex gap-4 text-xs text-gray-500 mt-1 ml-2">
