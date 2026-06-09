@@ -15,6 +15,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AuthContext } from "../context/AuthContext";
 import Image from "next/image";
+import RoleSwitcher from "./RoleSwitcher";
 
 export default function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -55,6 +56,8 @@ export default function Navbar() {
 
         {/* Right Icons */}
         <div className="hidden md:flex items-center gap-4">
+          <RoleSwitcher />
+
           <Link href="/feed" className="p-2 hover:bg-gray-100 rounded-lg">
             <Home className={`w-6 h-6 ${isActive("/feed")}`} />
           </Link>

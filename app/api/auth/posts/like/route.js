@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request) {
   try {
-    const { postId, userId } = await request.json();
+    const { postId, userId, userName, userImage } = await request.json();
 
     console.log("👍 Like/Unlike request:", { postId, userId });
 
@@ -51,7 +51,8 @@ export async function POST(request) {
       await likesCollection.insertOne({
         postId: postId, 
         userId: userId,
-        userName: userId, 
+        userName: userName || userId,
+        userImage: userImage,
         targetType: "post",
         createdAt: new Date(),
       });

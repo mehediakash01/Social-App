@@ -25,7 +25,10 @@ export async function GET(request) {
     
     const comments = await commentsCollection
       .find({ 
-        postId: postId,
+        $or: [
+          { postId: new ObjectId(postId) },
+          { postId: postId }
+        ],
         parentCommentId: null  
       })
       .sort({ createdAt: -1 })
@@ -54,13 +57,13 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
-    const { postId, userId, userName, content } = await request.json();
+    const { postId, userId, userName, content, userImage } = await request.json();
 
     console.log("💬 Creating comment:", { postId, userId, userName });
 
     if (!postId || !userId || !content) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Post ID, User ID, and content are required" },
         { status: 400 }
       );
     }
@@ -71,9 +74,10 @@ export async function POST(request) {
     const postsCollection = db.collection("posts");
 
     const comment = {
-      postId: postId,
+      postId: new ObjectId(postId),
       userId,
       userName,
+      userImage,
       content,
       likesCount: 0,
       repliesCount: 0,

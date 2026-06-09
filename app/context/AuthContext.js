@@ -206,6 +206,12 @@ export default function AuthProvider({ children }) {
     }
   };
 
+  const updateUserRole = (newRole) => {
+    if (user) {
+      setUser({ ...user, role: newRole });
+    }
+  };
+
   const authValue = {
     user,
     loading,
@@ -213,6 +219,7 @@ export default function AuthProvider({ children }) {
     loginWithEmail,
     loginWithGoogle,
     logoutUser,
+    updateUserRole,
   };
 
   return (
