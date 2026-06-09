@@ -5,7 +5,7 @@ import { ObjectId } from "mongodb";
 
 export async function POST(request) {
   try {
-    const { commentId, userId, userName } = await request.json();
+    const { commentId, userId, userName, userImage } = await request.json();
 
     console.log("👍 Like/Unlike comment:", { commentId, userId });
 
@@ -52,6 +52,7 @@ export async function POST(request) {
         postId: commentId, // Reuse postId field
         userId: userId,
         userName: userName,
+        userImage: userImage,
         targetType: "comment",
         createdAt: new Date(),
       });

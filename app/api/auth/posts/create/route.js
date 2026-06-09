@@ -18,6 +18,7 @@ export async function POST(request) {
     const userId = formData.get("userId");
     const userName = formData.get("userName");
     const userEmail = formData.get("userEmail");
+    const userImage = formData.get("userImage");
     const image = formData.get("image");
 
     // Validate required fields
@@ -63,6 +64,7 @@ export async function POST(request) {
       userId,
       userName,
       userEmail,
+      userImage,
       content,
       imageUrl,
       isPrivate,

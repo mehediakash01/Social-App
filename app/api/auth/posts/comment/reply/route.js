@@ -25,7 +25,12 @@ export async function GET(request) {
     const commentsCollection = db.collection("comments");
     
     const replies = await commentsCollection
-      .find({ parentCommentId: parentCommentId })
+      .find({ 
+        $or: [
+          { parentCommentId: new ObjectId(parentCommentId) },
+          { parentCommentId: parentCommentId }
+        ]
+      })
       .sort({ createdAt: 1 }) 
       .limit(limit)
       .toArray();
@@ -54,10 +59,7 @@ export async function GET(request) {
 // Add a reply to a comment
 export async function POST(request) {
   try {
-    const client = await clientPromise;
-    const db = client.db("social-app");
-    
-    const { postId, parentCommentId, userId, userName, content, replyingToName } = await request.json();
+    const { postId, parentCommentId, userId, userName, userImage, content, replyingToName } = await request.json();
 
     console.log("💬 Creating reply:", { postId, parentCommentId, userId, userName });
 
@@ -68,6 +70,8 @@ export async function POST(request) {
       );
     }
 
+    const client = await clientPromise;
+    const db = client.db("social-app");
     const commentsCollection = db.collection("comments");
 
     const reply = {
@@ -75,6 +79,7 @@ export async function POST(request) {
       parentCommentId,  
       userId,
       userName: userName || userId,
+      userImage,
       content,
       replyingToName: replyingToName || null,  
       likesCount: 0,

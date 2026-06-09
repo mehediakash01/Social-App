@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import clientPromise from "../../../lib/mongodb";
+import clientPromise from "../../../lib/mongodb"
 
 export async function POST(request) {
     // POST: Save or update user profile
@@ -30,6 +30,7 @@ export async function POST(request) {
         const setOnInsertFields = { 
             userId: userId,
             createdAt: new Date(),
+            role: "Regular User"
         };
 
         // Use updateOne with upsert: true for efficient 'find or create/update'
@@ -44,7 +45,7 @@ export async function POST(request) {
 
         // Fetch the saved/updated document to return the key data
         const savedUser = await usersCollection.findOne({ userId }, {
-             projection: { _id: 0, userId: 1, email: 1, displayName: 1 }
+             projection: { _id: 0, userId: 1, email: 1, displayName: 1, role: 1 }
         });
 
         return NextResponse.json({
